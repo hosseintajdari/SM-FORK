@@ -767,6 +767,8 @@ public class PlayerData extends DataChangeBase implements PlayerConstants, Profi
         if (VERSION.SDK_INT >= 19) {
             mSubtitleStyles.add(new SubtitleStyle(R.string.subtitle_system));
         }
+
+        mSubtitleStyles.add(new SubtitleStyle(R.string.subtitle_persian_youtube_style, R.color.white, R.color.subtitle_soft_black, CaptionStyleCompat.EDGE_TYPE_OUTLINE));
     }
 
     /**
@@ -784,7 +786,7 @@ public class PlayerData extends DataChangeBase implements PlayerConstants, Profi
 
         String[] split = Helpers.splitData(data);
 
-        int yellowOnSemiBgSubIdx = 4;
+        int defaultSubtitleStyleIdx = mSubtitleStyles.size() - 1;
         mOKButtonBehavior = Helpers.parseInt(split, 0, OK_ONLY_UI);
         mUiHideTimeoutSec = Helpers.parseInt(split, 1, 3);
         // mIsAbsoluteDateEnabled
@@ -798,7 +800,7 @@ public class PlayerData extends DataChangeBase implements PlayerConstants, Profi
         mAudioFormat = Helpers.firstNonNull(ExoFormatItem.from(Helpers.parseStr(split, 10)), getDefaultAudioFormat());
         mSubtitleFormat = Helpers.firstNonNull(ExoFormatItem.from(Helpers.parseStr(split, 11)), getDefaultSubtitleFormat());
         mVideoBufferType = Helpers.parseInt(split, 12, PlayerEngine.BUFFER_MEDIUM);
-        mSubtitleStyleIndex = Helpers.parseInt(split, 13, yellowOnSemiBgSubIdx);
+        mSubtitleStyleIndex = Helpers.parseInt(split, 13, defaultSubtitleStyleIdx);
         mResizeMode = Helpers.parseInt(split, 14, PlayerEngine.RESIZE_MODE_DEFAULT);
         mSpeed = Helpers.parseFloat(split, 15, 1.0f);
         mIsAfrEnabled = Helpers.parseBoolean(split, 16, false);
@@ -860,7 +862,7 @@ public class PlayerData extends DataChangeBase implements PlayerConstants, Profi
         }
 
         if (mSubtitleStyleIndex >= mSubtitleStyles.size()) {
-            mSubtitleStyleIndex = yellowOnSemiBgSubIdx;
+            mSubtitleStyleIndex = defaultSubtitleStyleIdx;
         }
     }
 

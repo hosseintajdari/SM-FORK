@@ -151,12 +151,21 @@ public class SubtitleManager implements TextOutput, OnDataChange {
         int textColor = ContextCompat.getColor(mContext, subtitleStyle.subsColorResId);
         int outlineColor = ContextCompat.getColor(mContext, R.color.black);
         int backgroundColor = ContextCompat.getColor(mContext, subtitleStyle.backgroundColorResId);
+        Typeface typeface = Typeface.DEFAULT_BOLD;
+
+        if (subtitleStyle.nameResId == R.string.subtitle_persian_youtube_style) {
+            try {
+                typeface = Typeface.createFromAsset(mContext.getAssets(), "fonts/Vazirmatn-SemiBold.ttf");
+            } catch (RuntimeException e) {
+                // Keep subtitle rendering available if the optional font asset cannot be loaded.
+            }
+        }
 
         CaptionStyleCompat style =
                 new CaptionStyleCompat(textColor,
                         backgroundColor, Color.TRANSPARENT,
                         subtitleStyle.captionStyle,
-                        outlineColor, Typeface.DEFAULT_BOLD);
+                        outlineColor, typeface);
         mSubtitleView.setStyle(style);
 
         float textSize = getTextSizePx();

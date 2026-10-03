@@ -61,6 +61,7 @@
   <string name="subtitle_default">پیش‌فرض</string>
   <string name="subtitle_white_semi_transparent">سفید روی پس‌زمینه نیمه شفاف</string>
   <string name="subtitle_style">سبک زیرنویس</string>
+  <string name="subtitle_persian_youtube_style">سبک شبیه یوتیوب (وزیرمتن)</string>
   <string name="subtitle_language">زبان زیرنویس</string>
   <string name="action_search">جستجو</string>
   <string name="settings_main_ui">رابط کاربری اصلی</string>
