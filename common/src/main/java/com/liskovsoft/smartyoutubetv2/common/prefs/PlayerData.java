@@ -736,7 +736,7 @@ public class PlayerData extends DataChangeBase implements PlayerConstants, Profi
     }
 
     public FormatItem getDefaultSubtitleFormat() {
-        return FormatItem.SUBTITLE_NONE;
+        return ExoFormatItem.fromSubtitleParams("fa");
     }
 
     public int getSeekIncrementMs() {
