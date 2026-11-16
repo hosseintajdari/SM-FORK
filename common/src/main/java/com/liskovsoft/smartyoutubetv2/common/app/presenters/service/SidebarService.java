@@ -257,14 +257,17 @@ public class SidebarService implements ProfileChangeListener {
     }
 
     private void initPinnedItems() {
-        for (int sectionId : mDefaultSections.values()) {
-            // Hidden sections
-            enableSection(sectionId, !Helpers.equalsAny(sectionId, new int[] {
-                    MediaGroup.TYPE_NOTIFICATIONS,
-                    MediaGroup.TYPE_PLAYBACK_QUEUE,
-                    MediaGroup.TYPE_TRENDING,
-                    MediaGroup.TYPE_BLOCKED_CHANNELS
-            }));
+        int[] defaultSidebar = {
+                MediaGroup.TYPE_HOME,
+                MediaGroup.TYPE_SHORTS,
+                MediaGroup.TYPE_GAMING,
+                MediaGroup.TYPE_MUSIC,
+                MediaGroup.TYPE_SUBSCRIPTIONS,
+                MediaGroup.TYPE_HISTORY,
+                MediaGroup.TYPE_SETTINGS
+        };
+        for (int sectionId : defaultSidebar) {
+            enableSection(sectionId, true);
         }
     }
 

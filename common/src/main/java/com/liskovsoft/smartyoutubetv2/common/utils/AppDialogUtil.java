@@ -868,7 +868,15 @@ public class AppDialogUtil {
         PlayerTweaksData playerTweaksData = PlayerTweaksData.instance(context);
         List<OptionItem> options = new ArrayList<>();
 
-        options.add(UiOptionItem.from(context.getString(R.string.default_lang),
+        options.add(UiOptionItem.from(context.getString(R.string.network_engine_auto_vpn),
+                context.getString(R.string.network_engine_auto_vpn_desc),
+                option -> {
+                    playerTweaksData.setPlayerDataSource(PlayerTweaksData.PLAYER_DATA_SOURCE_AUTO_VPN);
+                    onModeSelected.run();
+                },
+                playerTweaksData.getPlayerDataSource() == PlayerTweaksData.PLAYER_DATA_SOURCE_AUTO_VPN));
+
+        options.add(UiOptionItem.from(context.getString(R.string.default_option),
                 context.getString(R.string.default_stack_desc),
                 option -> {
                     playerTweaksData.setPlayerDataSource(PlayerTweaksData.PLAYER_DATA_SOURCE_DEFAULT);

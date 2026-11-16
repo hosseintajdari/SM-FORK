@@ -25,6 +25,9 @@ import android.database.ContentObserver;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Build.VERSION;
@@ -250,7 +253,7 @@ public class Utils {
             return;
         }
 
-        if (RemoteControlData.instance(context).isDeviceLinkEnabled()) {
+        if (RemoteControlData.instance(context).isRemoteListeningEnabled()) {
             // Service that prevents the app from destroying
             startService(context, RemoteControlService.class);
         } else {
@@ -1151,6 +1154,24 @@ public class Utils {
         void process(T listener);
     }
 
+    public static int resolvePlayerDataSource(Context context, int preference) {
+        if (preference != PlayerTweaksData.PLAYER_DATA_SOURCE_AUTO_VPN) {
+            return preference;
+        }
+
+        if (VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            ConnectivityManager connectivity = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (connectivity != null) {
+                Network network = connectivity.getActiveNetwork();
+                NetworkCapabilities capabilities = network != null ? connectivity.getNetworkCapabilities(network) : null;
+                if (capabilities != null && capabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) {
+                    return PlayerTweaksData.PLAYER_DATA_SOURCE_OKHTTP;
+                }
+            }
+        }
+        return getFasterDataSource();
+    }
+
     public static int getFasterDataSource() {
         return skipCronet() ? PlayerTweaksData.PLAYER_DATA_SOURCE_DEFAULT : preferOkHttp()
                 ? PlayerTweaksData.PLAYER_DATA_SOURCE_OKHTTP : PlayerTweaksData.PLAYER_DATA_SOURCE_CRONET;
@@ -1314,8 +1335,9 @@ public class Utils {
         if (error != null && Helpers.contains(error.getMessage(), "No address associated with hostname")) {
             // java.net.UnknownHostException: Unable to resolve host "www.youtube.com": No address associated with hostname
             PlayerTweaksData playerTweaksData = PlayerTweaksData.instance(context);
-            if (playerTweaksData.getPreferredDnsType() != PlayerTweaksData.DNS_TYPE_IPV4) {
-                playerTweaksData.setPreferredDnsType(PlayerTweaksData.DNS_TYPE_IPV4);
+            int customDns = PlayerTweaksData.DNS_TYPE_IPV4;
+            if (playerTweaksData.getPreferredDnsType() != customDns) {
+                playerTweaksData.setPreferredDnsType(customDns);
                 // Restart app to reinit OkHttp internal objects
                 Utils.restartTheApp(context);
                 return true;
