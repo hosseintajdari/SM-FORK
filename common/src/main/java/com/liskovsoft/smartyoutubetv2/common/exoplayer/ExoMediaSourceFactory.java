@@ -72,6 +72,8 @@ public class ExoMediaSourceFactory {
     private TrackErrorFixer mTrackErrorFixer;
     private DataSource.Factory mMediaDataSourceFactory;
     private DataSource.Factory mSabrMediaDataSourceFactory;
+    private int mMediaDataSourceEngine;
+    private int mSabrMediaDataSourceEngine;
 
     public ExoMediaSourceFactory(Context context) {
         mContext = context;
@@ -115,13 +117,9 @@ public class ExoMediaSourceFactory {
      *                          DataSource factory.
      * @return A new DataSource factory.
      */
-    private DataSource.Factory buildDataSourceFactory(boolean useBandwidthMeter) {
-        return buildDataSourceFactory(useBandwidthMeter, (int) OkHttpManager.getReadTimeoutMs());
-    }
-
-    private DataSource.Factory buildDataSourceFactory(boolean useBandwidthMeter, int readTimeoutMs) {
+    private DataSource.Factory buildDataSourceFactory(boolean useBandwidthMeter, int readTimeoutMs, int engine) {
         DefaultBandwidthMeter bandwidthMeter = useBandwidthMeter ? BANDWIDTH_METER : null;
-        return new DefaultDataSourceFactory(mContext, bandwidthMeter, buildHttpDataSourceFactory(useBandwidthMeter, readTimeoutMs));
+        return new DefaultDataSourceFactory(mContext, bandwidthMeter, buildHttpDataSourceFactory(useBandwidthMeter, readTimeoutMs, engine));
     }
 
     /**
@@ -129,11 +127,10 @@ public class ExoMediaSourceFactory {
      *
      * @param useBandwidthMeter Whether to set {@link #BANDWIDTH_METER} as a listener to the new
      *                          DataSource factory.
+     * @param source Resolved network engine.
      * @return A new HttpDataSource factory.
      */
-    private HttpDataSource.Factory buildHttpDataSourceFactory(boolean useBandwidthMeter, int readTimeoutMs) {
-        PlayerTweaksData tweaksData = PlayerTweaksData.instance(mContext);
-        int source = tweaksData.getPlayerDataSource();
+    private HttpDataSource.Factory buildHttpDataSourceFactory(boolean useBandwidthMeter, int readTimeoutMs, int source) {
         DefaultBandwidthMeter bandwidthMeter = useBandwidthMeter ? BANDWIDTH_METER : null;
         return source == PlayerTweaksData.PLAYER_DATA_SOURCE_OKHTTP ? buildOkHttpDataSourceFactory(bandwidthMeter, readTimeoutMs) :
                         source == PlayerTweaksData.PLAYER_DATA_SOURCE_CRONET && CronetManager.getEngine(mContext) != null ? buildCronetDataSourceFactory(bandwidthMeter, readTimeoutMs) :
@@ -389,19 +386,27 @@ public class ExoMediaSourceFactory {
      * switches to the alternate network before the buffer runs dry.
      */
     private DataSource.Factory getSabrMediaDataSourceFactory() {
-        if (mSabrMediaDataSourceFactory == null) {
-            mSabrMediaDataSourceFactory = buildDataSourceFactory(USE_BANDWIDTH_METER, SABR_READ_TIMEOUT_MS);
+        int engine = getEffectiveNetworkEngine();
+        if (mSabrMediaDataSourceFactory == null || mSabrMediaDataSourceEngine != engine) {
+            mSabrMediaDataSourceFactory = buildDataSourceFactory(USE_BANDWIDTH_METER, SABR_READ_TIMEOUT_MS, engine);
+            mSabrMediaDataSourceEngine = engine;
         }
 
         return mSabrMediaDataSourceFactory;
     }
 
     private DataSource.Factory getMediaDataSourceFactory() {
-        if (mMediaDataSourceFactory == null) {
-            mMediaDataSourceFactory = buildDataSourceFactory(USE_BANDWIDTH_METER);
+        int engine = getEffectiveNetworkEngine();
+        if (mMediaDataSourceFactory == null || mMediaDataSourceEngine != engine) {
+            mMediaDataSourceFactory = buildDataSourceFactory(USE_BANDWIDTH_METER, (int) OkHttpManager.getReadTimeoutMs(), engine);
+            mMediaDataSourceEngine = engine;
         }
 
         return mMediaDataSourceFactory;
+    }
+
+    private int getEffectiveNetworkEngine() {
+        return Utils.resolvePlayerDataSource(mContext, PlayerTweaksData.instance(mContext).getPlayerDataSource());
     }
 
     // EXO: 2.10 - 2.12

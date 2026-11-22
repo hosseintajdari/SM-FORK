@@ -223,6 +223,7 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:' + testXSupportVersion
     androidTestImplementation 'androidx.test:rules:' + testXSupportVersion
     androidTestImplementation 'androidx.test.espresso:espresso-core:' + espressoVersion
+    androidTestImplementation 'androidx.test:core:1.5.0' // Test activities declare android:exported on Android 12+
 
     implementation project(':fragment-1.1.0')
     implementation project(':leanback-1.0.0')

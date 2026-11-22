@@ -61,6 +61,7 @@
     <string name="subtitle_default">پیش‌فرض</string>
     <string name="subtitle_white_semi_transparent">سفید روی پس‌زمینه نیمه شفاف</string>
     <string name="subtitle_style">سبک زیرنویس</string>
+    <string name="subtitle_persian_youtube_style">سبک شبیه یوتیوب (وزیرمتن)</string>
     <string name="subtitle_language">زبان زیرنویس</string>
     <string name="action_search">جستجو</string>
     <string name="settings_main_ui">رابط کاربری اصلی</string>
@@ -525,6 +526,8 @@
     <string name="network_stack">ترجیح %s پشته شبکه</string>
     <string name="unlock_all_formats">باز کردن همه فرمت‌های ویدیو</string>
     <string name="unlock_all_formats_desc">در برخی دستگاه‌ها، نرم‌افزار به اشتباه برخی فرمت‌ها را به عنوان غیرقابل پشتیبانی گزارش می‌دهد، حتی اگر باشند.\n(به عنوان مثال، تلویزیون‌های هوشمند ۱۰۸۰p تمایل دارند که 4K را به عنوان غیرقابل پشتیبانی گزارش دهند).</string>
+    <string name="network_engine_auto_vpn">خودکار (سازگار با وی‌پی‌ان)</string>
+    <string name="network_engine_auto_vpn_desc">با وی‌پی‌ان فعال اندروید از OkHttp و در حالت عادی از موتور پیشنهادی دستگاه استفاده می‌کند.</string>
     <string name="okhttp_desc">این پشته شبکه کندترین است اما ثبات خوبی دارد.</string>
     <string name="select_channel_section">باز کردن بخش مربوطه هنگام راه‌اندازی برنامه از کانال‌های ATV</string>
     <string name="live_stream_fix_4k_desc">هشدار، این اصلاح بازپخش پخش زنده را غیرفعال می‌کند. عملکرد پخش زنده را به شدت بهبود می‌بخشد. حداکثر رزولوشن 4K است.</string>
@@ -763,7 +766,6 @@
         <item quantity="one">%s ثانیه</item>
         <item quantity="other">%s ثانیه</item>
     </plurals>
-    <string name="subtitle_persian_youtube_style">سبک شبیه یوتیوب (وزیرمتن)</string>
     <string name="subtitle_persian_light">وزیرمتن با پس‌زمینهٔ کم‌رنگ</string>
     <string name="subtitle_persian_yellow_light">وزیرمتن زرد با پس‌زمینهٔ کم‌رنگ</string>
 </resources>

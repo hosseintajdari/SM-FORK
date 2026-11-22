@@ -15,6 +15,7 @@ public class PlayerTweaksData implements ProfileChangeListener {
     public static final int PLAYER_DATA_SOURCE_DEFAULT = 0;
     public static final int PLAYER_DATA_SOURCE_OKHTTP = 1;
     public static final int PLAYER_DATA_SOURCE_CRONET = 2;
+    public static final int PLAYER_DATA_SOURCE_AUTO_VPN = 3;
     public static final int PLAYER_BUTTON_VIDEO_ZOOM = 1;
     public static final int PLAYER_BUTTON_SEARCH = 1 << 1;
     public static final int PLAYER_BUTTON_PIP = 1 << 2;
@@ -748,7 +749,7 @@ public class PlayerTweaksData implements ProfileChangeListener {
         mIsSpeedButtonOldBehaviorEnabled = Helpers.parseBoolean(split, 23, false);
         mIsButtonLongClickEnabled = Helpers.parseBoolean(split, 24, true);
         mIsLongSpeedListEnabled = Helpers.parseBoolean(split, 25, true);
-        mPlayerDataSource = Helpers.parseInt(split, 26, Utils.getFasterDataSource());
+        mPlayerDataSource = Helpers.parseInt(split, 26, PLAYER_DATA_SOURCE_AUTO_VPN);
         //mPlayerDataSource = Helpers.parseInt(split, 26, PLAYER_DATA_SOURCE_DEFAULT);
         mUnlockAllFormats = Helpers.parseBoolean(split, 27, false);
         mIsDashUrlStreamsForced = Helpers.parseBoolean(split, 28, false);

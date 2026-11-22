@@ -577,6 +577,8 @@
     <string name="cronet_desc">Cronet is the Chromium network stack. Cronet can reduce the latency and increase networking performance, which can help with buffering issues.</string>
     <string name="unlock_all_formats">Unlock all video formats</string>
     <string name="unlock_all_formats_desc">On some devices the firmware incorrectly reports some formats as unsupported, even if they are.\n(e.g. 1080p smart TVs tend to report 4k as not supported).</string>
+    <string name="network_engine_auto_vpn">Automatic (VPN aware)</string>
+    <string name="network_engine_auto_vpn_desc">Uses OkHttp when an Android VPN is active and the device-recommended engine otherwise.</string>
     <string name="okhttp_desc">This network engine is the slowest one but has good stability.</string>
     <string name="select_channel_section">Open corresponding section when the app launched from ATV Channels</string>
     <string name="enable_voice_search_desc">The official app will be replaced with a so-called \"bridge\". A bridge helps to transfer global search requests to our app.</string>

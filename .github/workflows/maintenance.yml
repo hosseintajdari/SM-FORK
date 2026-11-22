@@ -1,0 +1,39 @@
+name: SmartTube maintenance
+on:
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: smarttube-maintenance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-apk:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+          submodules: recursive
+      - uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - name: Install pinned Android SDK components
+        run: sdkmanager "platforms;android-34" "build-tools;30.0.3" "ndk;21.0.6113669" "platform-tools"
+      - name: Check source and build the APK
+        run: python3 tools/build_test_apk.py --checks
+      - name: Upload verified ARMv7 APK and build metadata
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: SmartTube-ARMv7-${{ github.event.pull_request.head.sha || github.sha }}
+          path: build/maintenance/
+          if-no-files-found: error
+          retention-days: 14

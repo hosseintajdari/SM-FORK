@@ -444,7 +444,7 @@ public class ErrorFixerController extends BasePlayerController implements OnLong
     }
 
     private int getNextEngine() {
-        int currentEngine = getPlayerTweaksData().getPlayerDataSource();
+        int currentEngine = Utils.resolvePlayerDataSource(getContext(), getPlayerTweaksData().getPlayerDataSource());
         Integer[] engineList = Utils.skipCronet() ?
                 new Integer[] { PlayerTweaksData.PLAYER_DATA_SOURCE_DEFAULT, PlayerTweaksData.PLAYER_DATA_SOURCE_OKHTTP } :
                 new Integer[] { PlayerTweaksData.PLAYER_DATA_SOURCE_CRONET, PlayerTweaksData.PLAYER_DATA_SOURCE_DEFAULT, PlayerTweaksData.PLAYER_DATA_SOURCE_OKHTTP };

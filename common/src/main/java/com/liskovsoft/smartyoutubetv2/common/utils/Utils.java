@@ -25,6 +25,9 @@ import android.database.ContentObserver;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Build.VERSION;
@@ -1149,6 +1152,24 @@ public class Utils {
 
     public interface Processor<T> {
         void process(T listener);
+    }
+
+    public static int resolvePlayerDataSource(Context context, int preference) {
+        if (preference != PlayerTweaksData.PLAYER_DATA_SOURCE_AUTO_VPN) {
+            return preference;
+        }
+
+        if (VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            ConnectivityManager connectivity = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (connectivity != null) {
+                Network network = connectivity.getActiveNetwork();
+                NetworkCapabilities capabilities = network != null ? connectivity.getNetworkCapabilities(network) : null;
+                if (capabilities != null && capabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) {
+                    return PlayerTweaksData.PLAYER_DATA_SOURCE_OKHTTP;
+                }
+            }
+        }
+        return getFasterDataSource();
     }
 
     public static int getFasterDataSource() {
