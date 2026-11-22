@@ -186,6 +186,7 @@ public class PlayerUIController extends BasePlayerController {
         boolean enabled = !format.isDefault();
         enableSubtitleForChannel(enabled);
         getPlayerData().setFormat(format);
+        getPlayerData().persistNow();
         getPlayer().setFormat(format);
         getPlayer().setButtonState(R.id.lb_control_closed_captioning, enabled ? PlayerUI.BUTTON_ON : PlayerUI.BUTTON_OFF);
     }

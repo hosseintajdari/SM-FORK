@@ -303,7 +303,7 @@ public class AppDialogUtil {
 
         result.add(0, UiOptionItem.from(
                 context.getString(R.string.option_disabled),
-                optionItem -> setFormat(playerData.getDefaultVideoFormat(), playerData, onFormatSelected),
+                optionItem -> setFormat(playerData.getDefaultVideoFormat(false), playerData, onFormatSelected),
                 !isPresetSelection));
 
         return result;

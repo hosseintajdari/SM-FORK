@@ -712,11 +712,15 @@ public class PlayerData extends DataChangeBase implements PlayerConstants, Profi
     }
 
     public FormatItem getDefaultVideoFormat() {
+        return getDefaultVideoFormat(true);
+    }
+
+    public FormatItem getDefaultVideoFormat(boolean preset) {
         if (VERSION.SDK_INT <= 19) {
             return FormatItem.VIDEO_SD_AVC_30;
         }
-        return DeviceHelpers.isVP9ResolutionSupported(1080)
-                ? FormatItem.VIDEO_FHD_VP9_60 : FormatItem.VIDEO_FHD_AVC_60;
+        return ExoFormatItem.fromVideoSpec(DeviceHelpers.isVP9ResolutionSupported(1080)
+                ? "1920,1080,60,vp9" : "1920,1080,60,avc", preset);
     }
 
     public FormatItem getDefaultSubtitleFormat() {
@@ -840,7 +844,23 @@ public class PlayerData extends DataChangeBase implements PlayerConstants, Profi
             mSpeed = 1.0f;
         }
 
-        if (mSubtitleStyleIndex >= mSubtitleStyles.size()) {
+        if (!Helpers.parseBoolean(split, 63, false)) {
+            // Apply the fork's new defaults once for profiles saved before 32.80.
+            mVideoFormat = getDefaultVideoFormat();
+            mAudioFormat = getDefaultAudioFormat();
+            if (!mSubtitleFormat.isDefault()) {
+                mSubtitleFormat = getDefaultSubtitleFormat();
+            }
+            mSubtitleLanguage = "fa";
+            mIsSubtitlesPerChannelEnabled = false;
+            mSubtitleStyleIndex = defaultSubtitleStyleIdx;
+            mSubtitleScale = 1.4f;
+            mIsClockEnabled = false;
+            mIsQualityInfoEnabled = true;
+            mIsRemainingTimeEnabled = true;
+        }
+
+        if (mSubtitleStyleIndex < 0 || mSubtitleStyleIndex >= mSubtitleStyles.size()) {
             mSubtitleStyleIndex = defaultSubtitleStyleIdx;
         }
     }
@@ -865,7 +885,7 @@ public class PlayerData extends DataChangeBase implements PlayerConstants, Profi
                 mIsNumberKeySeekEnabled, mIsSkip24RateEnabled, mAfrPauseMs, mIsLiveChatEnabled, mLastSubtitleFormats, mLastSpeed, mRotationAngle,
                 mZoomPercents, mPlaybackMode, mAudioLanguage, mSubtitleLanguage, mEnabledSubtitlesPerChannel, mIsSubtitlesPerChannelEnabled,
                 mIsSpeedPerChannelEnabled, Helpers.mergeArray(mSpeeds.values().toArray()), mPitch, mIsSkipShortsEnabled, mLastAudioLanguages,
-                mIsVideoFlipEnabled, mIsAudioDelayEnabled
+                mIsVideoFlipEnabled, mIsAudioDelayEnabled, true // 32.80 fork defaults applied
         ));
     }
 
