@@ -184,8 +184,11 @@ public class ExoFormatItem implements FormatItem {
 
         mediaTrack.isPreset = isPreset;
 
-        // audio/video disabled
         if (TextUtils.isEmpty(id) && TextUtils.isEmpty(codecs)) {
+            if (type == TYPE_SUBTITLE && !TextUtils.isEmpty(language)) {
+                return (ExoFormatItem) fromSubtitleParams(language);
+            }
+            // Audio/video/subtitles disabled.
             return from(mediaTrack);
         }
 

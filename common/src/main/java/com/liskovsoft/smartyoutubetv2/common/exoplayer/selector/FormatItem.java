@@ -19,7 +19,7 @@ public interface FormatItem {
     FormatItem SUBTITLE_NONE = ExoFormatItem.fromSubtitleParams(null);
     int HIGHEST_AUDIO_BITRATE = Integer.MAX_VALUE;
     FormatItem AUDIO_HIGHEST_BITRATE = ExoFormatItem.from(FormatItem.TYPE_AUDIO, TrackSelectorManager.RENDERER_INDEX_AUDIO,
-            null, null, 0, 0, 0, null, false, HIGHEST_AUDIO_BITRATE, false);
+            "highest-bitrate", null, 0, 0, 0, null, false, HIGHEST_AUDIO_BITRATE, false);
     FormatItem AUDIO_HQ_MP4A = ExoFormatItem.fromAudioSpecs(String.format("%s,null", "mp4a")); // Note, 5.1 mp4a doesn't work in 5.1 mode
     FormatItem AUDIO_51_EC3 = ExoFormatItem.fromAudioSpecs(String.format("%s,null", "ec-3")); // Note, 5.1 mp4a doesn't work in 5.1 mode
     FormatItem AUDIO_51_AC3 = ExoFormatItem.fromAudioSpecs(String.format("%s,null", "ac-3")); // Note, 5.1 mp4a doesn't work in 5.1 mode
