@@ -475,6 +475,9 @@ public class TrackSelectorManager implements TrackSelectorCallback {
             MediaTrack tmpResult = null;
 
             MediaTrack[][] mediaTracks = filterByLanguage(renderer.mediaTracks, originTrack);
+            if (originTrack instanceof AudioTrack && originTrack.format.bitrate == FormatItem.HIGHEST_AUDIO_BITRATE) {
+                return findHighestBitrateAudio(mediaTracks, result);
+            }
 
             outerloop:
             for (int groupIndex = 0; groupIndex < mediaTracks.length; groupIndex++) {
@@ -581,6 +584,24 @@ public class TrackSelectorManager implements TrackSelectorCallback {
             Log.e(TAG, "Something went wrong. Selected track not found for renderer=%s", rendererIndex);
             mTrackSelector.setParameters(mTrackSelector.buildUponParameters().clearSelectionOverrides(rendererIndex)); // Auto quality button selected
         }
+    }
+
+    private MediaTrack findHighestBitrateAudio(MediaTrack[][] groups, MediaTrack fallback) {
+        MediaTrack best = null;
+        for (MediaTrack[] group : groups) {
+            if (group == null) {
+                continue;
+            }
+            for (MediaTrack track : group) {
+                if (track == null || track.format == null || hasPlaybackGlitch(track)) {
+                    continue;
+                }
+                if (best == null || track.format.bitrate > best.format.bitrate) {
+                    best = track;
+                }
+            }
+        }
+        return best != null ? best : fallback;
     }
 
     private MediaTrack createAutoSelection(int rendererIndex) {

@@ -2,7 +2,6 @@ package com.liskovsoft.smartyoutubetv2.common.prefs;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Build;
 import android.os.Build.VERSION;
 
 import androidx.annotation.NonNull;
@@ -54,7 +53,6 @@ public class PlayerData extends DataChangeBase implements PlayerConstants, Profi
     private FormatItem mSubtitleFormat;
     private int mVideoBufferType;
     private final List<SubtitleStyle> mSubtitleStyles = new ArrayList<>();
-    private final Map<String, FormatItem> mDefaultVideoFormats = new HashMap<>();
     private int mSubtitleStyleIndex;
     private int mResizeMode;
     private int mZoomPercents;
@@ -132,7 +130,6 @@ public class PlayerData extends DataChangeBase implements PlayerConstants, Profi
         mPrefs = AppPrefs.instance(context);
         mPrefs.addListener(this);
         initSubtitleStyles();
-        initDefaultFormats();
         restoreState();
     }
 
@@ -711,28 +708,15 @@ public class PlayerData extends DataChangeBase implements PlayerConstants, Profi
     }
 
     public FormatItem getDefaultAudioFormat() {
-        // Android 4 (probably some others) doesn't support opus (ac3 will be reverted to opus)
-        // Note, 5.1 mp4a doesn't work in 5.1 mode
-        // Use opus (ac3 fallback) on modern devices. vp9 and opus should be supported at the same time?
-        return DeviceHelpers.isVP9ResolutionSupported(2160) ? FormatItem.AUDIO_51_AC3 : FormatItem.AUDIO_HQ_MP4A;
+        return FormatItem.AUDIO_HIGHEST_BITRATE;
     }
 
     public FormatItem getDefaultVideoFormat() {
-        FormatItem formatItem = mDefaultVideoFormats.get(Build.MODEL);
-
-        if (formatItem == null) {
-            if (VERSION.SDK_INT <= 19) { // Android 4 playback crash fix (memory leak?)
-                formatItem = FormatItem.VIDEO_SD_AVC_30;
-            } else if (VERSION.SDK_INT <= 23 && DeviceHelpers.isVP9ResolutionSupported(1080)) {
-                formatItem = FormatItem.VIDEO_FHD_VP9_60;
-            } else if (DeviceHelpers.isVP9ResolutionSupported(2160)) {
-                formatItem = FormatItem.VIDEO_4K_VP9_60;
-            } else if (DeviceHelpers.isVP9ResolutionSupported(1080)) {
-                formatItem = FormatItem.VIDEO_FHD_VP9_60;
-            }
+        if (VERSION.SDK_INT <= 19) {
+            return FormatItem.VIDEO_SD_AVC_30;
         }
-
-        return formatItem != null ? formatItem : FormatItem.VIDEO_HD_AVC_30;
+        return DeviceHelpers.isVP9ResolutionSupported(1080)
+                ? FormatItem.VIDEO_FHD_VP9_60 : FormatItem.VIDEO_FHD_AVC_60;
     }
 
     public FormatItem getDefaultSubtitleFormat() {
@@ -769,30 +753,25 @@ public class PlayerData extends DataChangeBase implements PlayerConstants, Profi
         }
 
         mSubtitleStyles.add(new SubtitleStyle(R.string.subtitle_persian_youtube_style, R.color.white, R.color.subtitle_soft_black, CaptionStyleCompat.EDGE_TYPE_OUTLINE));
+        mSubtitleStyles.add(new SubtitleStyle(R.string.subtitle_persian_light, R.color.white, R.color.subtitle_persian_light_background, CaptionStyleCompat.EDGE_TYPE_DROP_SHADOW));
+        mSubtitleStyles.add(new SubtitleStyle(R.string.subtitle_persian_yellow_light, R.color.yellow, R.color.subtitle_persian_light_background, CaptionStyleCompat.EDGE_TYPE_DROP_SHADOW));
     }
 
     /**
      * Overrides for auto detected values
      */
-    private void initDefaultFormats() {
-        mDefaultVideoFormats.put("SHIELD Android TV", FormatItem.VIDEO_4K_VP9_60);
-        mDefaultVideoFormats.put("AFTMM", FormatItem.VIDEO_4K_VP9_60); // Stick 4K 2018
-        mDefaultVideoFormats.put("AFTKA", FormatItem.VIDEO_4K_VP9_60); // Stick 4K Max 2021
-        mDefaultVideoFormats.put("P1", FormatItem.VIDEO_FHD_AVC_60); // Chinese projector (see annoying emails)
-    }
-
     private void restoreState() {
         String data = mPrefs.getProfileData(VIDEO_PLAYER_DATA);
 
         String[] split = Helpers.splitData(data);
 
-        int defaultSubtitleStyleIdx = mSubtitleStyles.size() - 1;
+        int defaultSubtitleStyleIdx = mSubtitleStyles.size() - 2;
         mOKButtonBehavior = Helpers.parseInt(split, 0, OK_ONLY_UI);
         mUiHideTimeoutSec = Helpers.parseInt(split, 1, 3);
         // mIsAbsoluteDateEnabled
         mSeekPreviewMode = Helpers.parseInt(split, 3, SEEK_PREVIEW_SINGLE);
         mIsSeekConfirmPauseEnabled = Helpers.parseBoolean(split, 4, false);
-        mIsClockEnabled = Helpers.parseBoolean(split, 5, true);
+        mIsClockEnabled = Helpers.parseBoolean(split, 5, false);
         mIsRemainingTimeEnabled = Helpers.parseBoolean(split, 6, true);
         mBackgroundMode = Helpers.parseInt(split, 7, PlayerEngine.BACKGROUND_MODE_DEFAULT);
         // afrData was there
@@ -825,7 +804,7 @@ public class PlayerData extends DataChangeBase implements PlayerConstants, Profi
         mIsSeekConfirmPlayEnabled = Helpers.parseBoolean(split, 36, false);
         mSeekIncrementMs = Helpers.parseInt(split, 37, 10_000);
         // old subs size px
-        mSubtitleScale = Helpers.parseFloat(split, 39, 1.0f);
+        mSubtitleScale = Helpers.parseFloat(split, 39, 1.4f);
         mPlayerVolume = Helpers.parseFloat(split, 40, 1.0f);
         mIsTooltipsEnabled = Helpers.parseBoolean(split, 41, true);
         mSubtitlePosition = Helpers.parseFloat(split, 42, 0.1f);
@@ -839,9 +818,9 @@ public class PlayerData extends DataChangeBase implements PlayerConstants, Profi
         mZoomPercents = Helpers.parseInt(split, 50, -1);
         mPlaybackMode = Helpers.parseInt(split, 51, PlayerConstants.PLAYBACK_MODE_ALL);
         mAudioLanguage = Helpers.parseStr(split, 52, LocaleUtility.getCurrentLanguage(mPrefs.getContext()));
-        mSubtitleLanguage = Helpers.parseStr(split, 53, LocaleUtility.getCurrentLanguage(mPrefs.getContext()));
+        mSubtitleLanguage = Helpers.parseStr(split, 53, "fa");
         mEnabledSubtitlesPerChannel = Helpers.parseStrList(split, 54);
-        mIsSubtitlesPerChannelEnabled = Helpers.parseBoolean(split, 55, true);
+        mIsSubtitlesPerChannelEnabled = Helpers.parseBoolean(split, 55, false);
         mIsSpeedPerChannelEnabled = Helpers.parseBoolean(split, 56, true);
         String[] speeds = Helpers.parseArray(split, 57);
         mPitch = Helpers.parseFloat(split, 58, 1.0f);

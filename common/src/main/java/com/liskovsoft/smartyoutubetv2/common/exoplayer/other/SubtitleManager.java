@@ -153,7 +153,9 @@ public class SubtitleManager implements TextOutput, OnDataChange {
         int backgroundColor = ContextCompat.getColor(mContext, subtitleStyle.backgroundColorResId);
         Typeface typeface = Typeface.DEFAULT_BOLD;
 
-        if (subtitleStyle.nameResId == R.string.subtitle_persian_youtube_style) {
+        if (subtitleStyle.nameResId == R.string.subtitle_persian_youtube_style
+                || subtitleStyle.nameResId == R.string.subtitle_persian_light
+                || subtitleStyle.nameResId == R.string.subtitle_persian_yellow_light) {
             try {
                 typeface = Typeface.createFromAsset(mContext.getAssets(), "fonts/Vazirmatn-SemiBold.ttf");
             } catch (RuntimeException e) {

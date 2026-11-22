@@ -34,4 +34,5 @@
     <color name="magenta">#FF00FF</color>
     <color name="brown">#964B00</color>
     <color name="light_pink">#FF1684</color>
+    <color name="subtitle_persian_light_background">#26000000</color>
 </resources>

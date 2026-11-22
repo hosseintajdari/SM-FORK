@@ -133,9 +133,10 @@ public class PlayerUIController extends BasePlayerController {
             return false;
         }
 
-        boolean isHandled = handleBackKey(keyCode) || handleMenuKey(keyCode) ||
-                handleConfirmKey(keyCode) || handleStopKey(keyCode) || handleNumKeys(keyCode) ||
-                handlePlayPauseKey(keyCode) || handleLeftRightSkip(keyCode) || handleUpDownSkip(keyCode);
+        boolean isHandled = handleBackKey(keyCode) || handleMenuKey(keyCode)
+                || handleConfirmKey(keyCode) || handleStopKey(keyCode) || handleNumKeys(keyCode)
+                || handlePlayPauseKey(keyCode) || handleLeftRightSkip(keyCode) || handleUpDownSkip(keyCode)
+                || handleUpSkip(keyCode);
 
         if (isHandled) {
             return true; // don't show UI
@@ -151,39 +152,42 @@ public class PlayerUIController extends BasePlayerController {
             return;
         }
 
-        boolean enabled = buttonState == PlayerUI.BUTTON_ON;
-
-        // First run
-        if (FormatItem.SUBTITLE_NONE.equals(getPlayerData().getLastSubtitleFormat())) {
-            onSubtitleLongClicked();
+        if (buttonState == PlayerUI.BUTTON_ON) {
+            applySubtitle(FormatItem.SUBTITLE_NONE);
             return;
         }
-
-        // Only default in the list
-        if (getPlayer().getSubtitleFormats() == null || getPlayer().getSubtitleFormats().size() == 1) {
+        List<FormatItem> formats = getPlayer().getSubtitleFormats();
+        if (formats == null || formats.size() <= 1) {
             return;
         }
-
-        FormatItem matchedFormat = null;
-
-        for (FormatItem item : getPlayerData().getLastSubtitleFormats()) {
-            if (getPlayer().getSubtitleFormats().contains(item)) {
-                matchedFormat = item;
-                break;
+        FormatItem persian = null;
+        for (FormatItem format : formats) {
+            if (isPersianSubtitle(format)) {
+                persian = format;
+                if (!SubtitleTrack.isAuto(format.getLanguage())) {
+                    break;
+                }
             }
         }
-
-        // Match found
-        if (matchedFormat != null) {
-            FormatItem format = enabled ? FormatItem.SUBTITLE_NONE : matchedFormat;
-            getPlayer().setFormat(format);
-            getPlayerData().setFormat(format);
-            getPlayer().setButtonState(R.id.lb_control_closed_captioning, !FormatItem.SUBTITLE_NONE.equals(matchedFormat) && !enabled ? PlayerUI.BUTTON_ON : PlayerUI.BUTTON_OFF);
-            enableSubtitleForChannel(!enabled);
+        if (persian != null) {
+            applySubtitle(persian);
         } else {
-            // Match not found
             onSubtitleLongClicked();
         }
+    }
+
+    private static boolean isPersianSubtitle(FormatItem format) {
+        String language = SubtitleTrack.trim(format.getLanguage());
+        return "fa".equalsIgnoreCase(language) || "fas".equalsIgnoreCase(language)
+                || "per".equalsIgnoreCase(language) || (language != null && language.regionMatches(true, 0, "fa-", 0, 3));
+    }
+
+    private void applySubtitle(FormatItem format) {
+        boolean enabled = !format.isDefault();
+        enableSubtitleForChannel(enabled);
+        getPlayerData().setFormat(format);
+        getPlayer().setFormat(format);
+        getPlayer().setButtonState(R.id.lb_control_closed_captioning, enabled ? PlayerUI.BUTTON_ON : PlayerUI.BUTTON_OFF);
     }
 
     private void onSubtitleLongClicked() {
@@ -207,9 +211,7 @@ public class PlayerUIController extends BasePlayerController {
                     UiOptionItem.from(subtitleOrigFormats,
                             option -> {
                                 FormatItem format = UiOptionItem.toFormat(option);
-                                enableSubtitleForChannel(!format.isDefault());
-                                getPlayer().setFormat(format);
-                                getPlayerData().setFormat(format);
+                                applySubtitle(format);
                             },
                             getContext().getString(R.string.subtitles_disabled)));
             settingsPresenter.showDialog();
@@ -224,9 +226,7 @@ public class PlayerUIController extends BasePlayerController {
                     UiOptionItem.from(subtitleAutoFormats,
                             option -> {
                                 FormatItem format = UiOptionItem.toFormat(option);
-                                enableSubtitleForChannel(!format.isDefault());
-                                getPlayer().setFormat(format);
-                                getPlayerData().setFormat(format);
+                                applySubtitle(format);
                             },
                             getContext().getString(R.string.subtitles_disabled)));
             settingsPresenter.showDialog();
@@ -808,9 +808,9 @@ public class PlayerUIController extends BasePlayerController {
     }
 
     private boolean handleUpDownSkip(int keyCode) {
-        if (getPlayer() == null || getPlayer().isOverlayShown() || getVideo() == null ||
-                (getVideo().belongsToShortsGroup() && !getPlayerTweaksData().isQuickSkipShortsAltEnabled() ||
-                        (!getVideo().belongsToShortsGroup() && !getPlayerTweaksData().isQuickSkipVideosAltEnabled()))) {
+        if (getPlayer() == null || getPlayer().isOverlayShown() || getVideo() == null
+                || (getVideo().belongsToShortsGroup() && !getPlayerTweaksData().isQuickSkipShortsAltEnabled()
+                    || (!getVideo().belongsToShortsGroup() && !getPlayerTweaksData().isQuickSkipVideosAltEnabled()))) {
             return false;
         }
 
@@ -821,6 +821,20 @@ public class PlayerUIController extends BasePlayerController {
 
         if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
             getMainController().onPreviousClicked();
+            return true; // hide ui
+        }
+
+        return false;
+    }
+
+    private boolean handleUpSkip(int keyCode) {
+        if (getPlayer() == null || getPlayer().isOverlayShown() || getVideo() == null
+                || getVideo().belongsToShortsGroup() || !getPlayerTweaksData().isQuickSkipChaptersEnabled()) {
+            return false;
+        }
+
+        if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+            getController(SuggestionsController.class).onNextChapter();
             return true; // hide ui
         }
 
@@ -1106,6 +1120,8 @@ public class PlayerUIController extends BasePlayerController {
             }
         }
         subtitleFormats.addAll(subtitleFormats.size() < begin ? 0 : begin, topSubtitles);
+        java.util.Collections.sort(subtitleFormats, (first, second) ->
+                Boolean.compare(isPersianSubtitle(second), isPersianSubtitle(first)));
     }
 
     private void showNotificationsDialog() {

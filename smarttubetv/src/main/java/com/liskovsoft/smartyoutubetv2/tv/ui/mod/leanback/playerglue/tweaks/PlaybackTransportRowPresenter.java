@@ -100,7 +100,6 @@ public class PlaybackTransportRowPresenter extends PlaybackRowPresenter {
         final ThumbsBar mThumbsBar;
         final TextView mThumbsBarTitle;
         final ViewGroup mThumbsBarWrapper;
-        final String mRemainingTimeFormat;
         final String mEndingTimeFormat;
         long mTotalTimeInMs = Long.MIN_VALUE;
         long mCurrentTimeInMs = Long.MIN_VALUE;
@@ -439,7 +438,6 @@ public class PlaybackTransportRowPresenter extends PlaybackRowPresenter {
             mDateTime = (TextView) rootView.findViewById(com.liskovsoft.smartyoutubetv2.tv.R.id.date_time);
             mEndingTime = (TextView) rootView.findViewById(com.liskovsoft.smartyoutubetv2.tv.R.id.ending_time);
             mEndingTimeFormat = rootView.getContext().getString(com.liskovsoft.smartyoutubetv2.tv.R.string.player_ending_time);
-            mRemainingTimeFormat = rootView.getContext().getString(com.liskovsoft.smartyoutubetv2.tv.R.string.player_remaining_time);
             mAdditionalInfo = (ViewGroup) rootView.findViewById(com.liskovsoft.smartyoutubetv2.tv.R.id.additional_info);
             mTimeInfo = (ViewGroup) rootView.findViewById(com.liskovsoft.smartyoutubetv2.tv.R.id.time_info);
             mTopEdge = (ViewGroup) rootView.findViewById(com.liskovsoft.smartyoutubetv2.tv.R.id.top_edge);
@@ -769,7 +767,7 @@ public class PlaybackTransportRowPresenter extends PlaybackRowPresenter {
             if (mEndingTime != null) {
                 if (mPlayerData.isRemainingTimeEnabled()) {
                     formatTime(remainingTimeMs, mTempBuilder);
-                    mEndingTime.setText(String.format(mRemainingTimeFormat, mTempBuilder.toString()));
+                    mEndingTime.setText(mTempBuilder.toString());
                     mEndingTime.setVisibility(View.VISIBLE);
                 } else if (mPlayerData.isEndingTimeEnabled()) {
                     mEndingTime.setText(String.format(mEndingTimeFormat,
@@ -784,7 +782,7 @@ public class PlaybackTransportRowPresenter extends PlaybackRowPresenter {
         void setQualityInfo(String content) {
             if (content != null) {
                 if (mPlayerData.isQualityInfoEnabled()) {
-                    mQualityInfo.setText(content);
+                    mQualityInfo.setText(content == null ? null : content.split("/", 2)[0]);
                     mQualityInfo.setVisibility(View.VISIBLE);
                 } else {
                     mQualityInfo.setVisibility(View.GONE);
